@@ -512,6 +512,10 @@ reverse_columns:
 #second step: transpose the matrix
 .globl rotate_clkws_90
 rotate_clkws_90:
+  move $s0 $a1
+  move $a1 $a0
+  move $a0 $s0
+  
   addi $sp $sp -20
   sw $ra 0($sp)
   sw $s0 4($sp)
@@ -533,6 +537,10 @@ rotate_clkws_90:
 #second step: reverse elements in every column
 .globl rotate_clkws_180
 rotate_clkws_180:
+  move $s0 $a1
+  move $a1 $a0
+  move $a0 $s0
+  
   addi $sp $sp -20
   sw $ra 0($sp)
   sw $s0 4($sp)
@@ -568,6 +576,10 @@ rotate_clkws_180:
 #second step: transpose the matrix
 .globl rotate_clkws_270
 rotate_clkws_270:
+  move $s0 $a1
+  move $a1 $a0
+  move $a0 $s0
+  
   addi $sp $sp -20
   sw $ra 0($sp)
   sw $s0 4($sp)
@@ -585,7 +597,7 @@ rotate_clkws_270:
   j write_file_in_column_major
  jr $ra
 
-write_file_in_column_major:
+write_file_in_column_major:  
   li $t9 0
   move $s0 $a1			#preserve a1 since it stores the buffer
   li $v0 13			#read the file
@@ -718,6 +730,10 @@ write_line_in_col_major:
 #should be obvious
 .globl mirror
 mirror:
+  move $s0 $a1
+  move $a1 $a0
+  move $a0 $s0
+  
   addi $sp $sp -20
   sw $ra 0($sp)
   sw $s0 4($sp)
@@ -737,6 +753,8 @@ mirror:
 #takes buffer as input,v0 as output
 .globl duplicate
 duplicate:
+  move $a1 $a0
+  
   addi $sp $sp -24
   sw $s0 0($sp)
   sw $s1 4($sp)
