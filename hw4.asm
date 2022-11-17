@@ -350,8 +350,9 @@ check_relation_exists:
 #use breath-first search algorithm to solve this problem
 .globl get_distant_friends
 get_distant_friends:
-  addi $sp $sp -4
+  addi $sp $sp -8
   sw $s0 0($sp)
+  sw $s1 4($sp)
   #s0 should be the head of the reference
   li $s0 0
   
@@ -470,13 +471,31 @@ get_distant_friends:
   beqz $s0 no_linkedlist_returned
 
   lw $s0 0($sp)
-  addi $sp $sp 4
+  lw $s1 4($sp)
+  addi $sp $sp 8
+
   jr $ra
   no_linkedlist_returned:
   li $v0 -1 
   lw $s0 0($sp)
-  addi $sp $sp 4
+  lw $s1 4($sp)
+  addi $sp $sp 8
   jr $ra
+  
+person_not_exist:
+  li $v0 -2
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  addi $sp $sp 8
+  jr $ra
+  
+no_distant_friend:
+  li $v0 -1
+  lw $s0 0($sp)
+  lw $s1 4($sp)
+  addi $sp $sp 8
+  jr $ra
+
 increment1:
   addi $t4 $t4 1
   addi $t0 $t0 4
@@ -690,11 +709,3 @@ node_is_friend_to_target:
     lw $s2 8($sp)
     addi $sp $sp 12
     jr $ra
-  	
-person_not_exist:
-  li $v0 -2
-  jr $ra
-  
-no_distant_friend:
-  li $v0 -1
-  jr $ra
