@@ -1,0 +1,141 @@
+#TEST CASE 1 FAIL
+    lw $a0, I
+    lw $a1, J
+    jal create_network
+    add $s0, $v0, $0		# network address in heap
+
+    add $a0, $0, $s0		# pass network address to add_person
+    la $a1, Name1
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name2
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name3
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name4
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name5
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name6
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, NameX
+    jal add_person
+
+#TEST CASE 2
+    lw $a0, I
+    lw $a1, J
+    jal create_network
+    add $s0, $v0, $0		# network address in heap
+
+    add $a0, $0, $s0		# pass network address to add_person
+    la $a1, Name1
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name2
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name3
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name4
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name5
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name6
+    jal add_person
+    
+    #write test code
+    move $a0 $v0
+    la $a1 Name1
+    la $a2 Name2
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name1
+    la $a2 Name3
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name2
+    la $a2 Name5
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name3
+    la $a2 Name4
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name3
+    la $a2 Name6
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name1
+    jal get_distant_friends
+
+  ####### If it has no friends, then exit out of the program ##########
+  beq $fp $s1 no_distant_friend	#if there's no friend
+
+#TEST CASE 3
+    lw $a0, I
+    lw $a1, J
+    jal create_network
+    add $s0, $v0, $0		# network address in heap
+
+    add $a0, $0, $s0		# pass network address to add_person
+    la $a1, Name1
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name2
+    jal add_person
+    
+    move $a0, $v0		# pass network address to add_person
+    la $a1, Name3
+    jal add_person
+    
+    move $a0 $v0
+    la $a1 Name1
+    la $a2 Name2
+    li $a3 0
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name1
+    la $a2 Name3
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name2
+    la $a2 Name3
+    li $a3 1
+    jal add_relation
+    
+    move $a0 $v0
+    la $a1 Name1
+    jal get_distant_friends
