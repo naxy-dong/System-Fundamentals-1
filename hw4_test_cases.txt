@@ -97,9 +97,6 @@
     la $a1 Name1
     jal get_distant_friends
 
-  ####### If it has no friends, then exit out of the program ##########
-  beq $fp $s1 no_distant_friend	#if there's no friend
-
 #TEST CASE 3
     lw $a0, I
     lw $a1, J
