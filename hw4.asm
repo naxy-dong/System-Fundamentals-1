@@ -41,17 +41,7 @@ create_network:
   sw $a1 4($v0)
   sw $0 8($v0)
   sw $0 12($v0)
-  ##			SAVE 0s in the network			##
-  addi $t1 $v0 16		#creates the copy of a network and set all the values to 0
-  add $t0 $a0 $a1
-  li $t2 0			#counter
-  
-  for_network:
-    sw $0 0($t1)
-    addi $t1 $t1 4
-    addi $t2 $t2 1
-    bne $t2 $t0 for_network
-  
+
   jr $ra
 
 create_network_error:
@@ -64,8 +54,8 @@ create_network_error:
 add_person:
   #################### Preliminary checks for errors #######################
   ##### Case 1: the network is at its capacity
-  lw $t0 0($a0)
-  lw $t1 8($a0)
+  lw $t0 0($a0)			#t0 is the max nodes
+  lw $t1 8($a0)			#t1 is the current nodes
   beq $t0 $t1 v1_v0_error
   ##### Case 2: an empty string is passed as the name of the person
   lbu $t0 0($a1)
@@ -89,19 +79,28 @@ add_person:
   	bnez $t2 for_string
   	
   #### Step2: creating the Node in the heap structure
-  #li $t2 4			#create 4 bytes for the 1 int
-  #add $t2 $t0 $t2		
+  li $t2 4			#create 4 bytes for the 1 int
+  add $t2 $t0 $t2		
   
   move $t1 $a0
-  li $a0 8
+  move $a0 $t2
   li $v0, 9
   syscall 			#create the node and store the address in t0
   move $a0 $t1
-  
+
   #### Step3: Append information to the node
+  addi $t0 $t0 -1
   sw $t0 0($v0)		# append the integer K
-  sw $a1 4($v0)		# store the address of the string
-  
+  move $t1 $a1		# move the string
+  move $t0 $v0		# move the name part of the node
+  addi $t0 $t0 4
+  for_string1:
+  	lbu  $t2 0($t1)		#get the current char
+  	#addi $t0 $t0 1		# counter ++
+  	sb $t2 0($t0)		# store the address of the string
+  	addi $t1 $t1 1		# next char
+  	addi $t0 $t0 1
+  	bnez $t2 for_string1
   #### Step4: Append the node to the network
   lw $t0 8($a0)		#get the current no. of nodes in the network
   
@@ -129,7 +128,8 @@ check_person_exist:
 
   for_node1:
   	lw $t4 0($t0)		#load the current node
-  	lw $t5 4($t4)		#load the name part of the current node
+  	addi $t4 $t4 4
+  	move $t5 $t4		#load the name part of the current node
   	
   	addi $sp $sp -12
   	sw $ra 0($sp)
@@ -165,7 +165,7 @@ get_person:
   
   for_node:
   	lw $t4 0($t0)		#load the current node
-  	lw $t5 4($t4)		#load the name part of the current node
+  	addi $t5 $t4 4		#load the name part of the current node
   	
   	addi $sp $sp -12
   	sw $ra 0($sp)
@@ -383,11 +383,10 @@ get_distant_friends:
   addi $fp $fp 4
   sw $t1 0($fp)
   
-  #t2 is the current node
   lw $t3 12($a0)		# current number of edges in the network
   beqz $t3 no_distant_friend	#if there's no edges
   ############################ FIRST ROUND CHECK #################################
-  lw $t2 0($fp)		#current node
+  lw $t2 0($fp)		# current node
   addi $fp $fp -4
   move $t0 $t9		# reset address
   li $t4 0		# reset counter
@@ -420,7 +419,7 @@ get_distant_friends:
   	sw $a0 4($sp)
   	sw $a1 8($sp)
   	move $a0 $t2 
-  	move $a1 $t1			#t1 is the target name
+  	move $a1 $t1			#t1 is the target node
   	jal node_is_friend_to_target
   	lw $ra 0($sp)
   	lw $a0 4($sp)
@@ -429,21 +428,37 @@ get_distant_friends:
   	bnez $v0 skip
   	
   	####################### appending the node to the linkedlist #############################
-
+	lw $t6 0($t2)		# the length of the name
+	addi $t6 $t6 1		# the length with the \0
+  	
   	move $t7 $a0
-  	li $a0 8
+  	move $a0 $t6		# the amount of memory
   	li $v0, 9
   	syscall 			#create the friendNode and store the address in v0
   	move $a0 $t7 
-  				#stores the name to the friendnode
-  	lw $t6 4($t2)		#the name address of popped node
-  	sw $t6 0($v0)		#store the name to the friendNode
-  	sw $s0 4($v0) 		#store the linkedlist to the address of the new friendNode
-  	move $s0 $v0		#update the new head
   	
+  	move $t8 $v0		# create a separate reference to the linkedlist
+  				#stores the name to the friendnode
+  	addi $t6 $t2 4		#the name address of popped node
+  	
+  	for_string3:
+  		lbu $t7 0($t6)		# get the current char
+  		sb $t7 0($v0)		# store the address of the string
+  		addi $v0 $v0 1		# next char
+  		addi $t6 $t6 1
+  		bnez $t7 for_string3
+  		
+  	move $t7 $a0
+  	li $a0 4
+  	li $v0, 9
+  	syscall
+  	move $a0 $t7
+  	
+  	sw $s0 0($v0) 		#store the linkedlist to the address of the new friendNode
+  	move $s0 $t8		#update the new head
+
   	############### deciding what node to append to the stack ########################
   	skip:
-  	#get the neighbors of t2
   	move $t0 $t9	# reset address
   	li $t4 0		# reset counter
   	for_get_neighbors:
@@ -555,7 +570,7 @@ appendNode1:
   #we should not append a node to the STACK if it's already visited
   bnez $v0 increment
   ####################### appending the node to the stack ############################
-  lw $t6 0($t5)		#node2 address of the edge node
+  lw $t6 0($t5)		#node1 address of the edge node
   addi $fp $fp 4
   sw $t6 0($fp)		#store node2 in to the stack
   j increment
@@ -594,11 +609,7 @@ isVisited:
   lw $a1 8($sp)
   addi $sp $sp 12
   bnez $v0 node_visited
-  
-  #4. if it's friend to the node, then don't need to do it 
-  # DON T NEED TO DO IT
-  #jal node_is_friend_to_target
-  
+
   jr $ra	         #it has not been visited
   node_visited:
   li $v0 1
@@ -609,6 +620,7 @@ isVisited:
 node_in_stack:
   addi $sp $sp -4
   sw $s0 0($sp)
+  
   beq $s1 $a1 node_not_in_stack
   while_stack:
   	lw $s0 0($a1)		#current node
@@ -629,33 +641,66 @@ node_in_stack:
 #check if the node already exist in stack
 #takes in the node $a0 and linkedlist in $a1
 node_in_linkedlist:
-  addi $sp $sp -12
+  addi $sp $sp -16
   sw $s0 0($sp)
   sw $s1 4($sp)
   sw $s2 8($sp)
+  sw $s3 12($sp)
   li $v0 0
   beq $s0 $0 no_node_exist_in_linkedlist	#if the list is empty
   for_node_in_list:
   	#check if the name is equal to the name in node $a0
-  	lw $s1 4($a0)		#name from the node
-  	lw $s2 0($s0)		#name from the linkedlist node 
-  	beq $s1 $s2 node_exist_in_linkedlist	
-  	addi $s0 $s0 4
+  	addi $s1 $a0 4		#name from the node
+  	move $s2 $s0		#name from the linkedlist node 
+  	addi $sp $sp -12
+  	sw $ra 0($sp)
+  	sw $a0 4($sp)
+  	sw $a1 8($sp)
+  	move $a0 $s1
+  	move $a1 $s2
+  	jal compare_strings
+  	lw $ra 0($sp)
+  	lw $a0 4($sp)
+  	lw $a1 8($sp)
+  	addi $sp $sp 12
+  	bgtz $v0 node_exist_in_linkedlist		#if v0 == 1 then the names are equal
+  	
+  	#this for loop figures out how many characters are in the string
+  	li $s1 0		# counter for characters
+  	move $s2 $s0		# a dup reference for the string
+  	#t2 = current char
+  	for_string4:
+  		lbu  $s3 0($s2)		#get the current char
+  		addi $s1 $s1 1		# counter ++
+  		addi $s2 $s2 1		# next char
+  		bnez $s3 for_string4	# 
+  	li $s2 4
+  	div $s1 $s2
+  	mflo $s3
+  	mfhi $s1
+  	mul $s2 $s2 $s3
+  	beqz $s1 skip_plus4
+  	addi $s2 $s2 4
+  	skip_plus4:
+  	add $s0 $s0 $s2
   	lw $s0 0($s0)
-  	bne $s0 $0 for_node_in_list
+  	bnez $s0 for_node_in_list
+  	
   no_node_exist_in_linkedlist:
   li $v0 0
   lw $s0 0($sp)
   lw $s1 4($sp)
   lw $s2 8($sp)
-  addi $sp $sp 12
+  lw $s3 12($sp)
+  addi $sp $sp 16
   jr $ra
   node_exist_in_linkedlist:
   li $v0 1
   lw $s0 0($sp)
   lw $s1 4($sp)
   lw $s2 8($sp)
-  addi $sp $sp 12
+  lw $s3 12($sp)
+  addi $sp $sp 16
   jr $ra
   	
 #returns true if the node is the input name or the neighbor of the input name
