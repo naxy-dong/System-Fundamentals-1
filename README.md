@@ -1,1 +1,2 @@
-# This repository contains homework from System Fundamentals 1 class.
+# System Fundamentals 1
+This repository contains homework from System Fundamentals 1 class.
