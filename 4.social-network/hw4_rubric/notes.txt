@@ -1,0 +1,43 @@
+- When testing a hw4.asm file, add the .data section in "grader.asm" to the beginning of the hw4.asm file under test.
+
+- Further, add the "grader_122022_" functions defined in "grader.asm" to the end of hw4.asm file under test.
+
+- Once you have modified hw4.asm in ways outlined above, run the test in tests/Hw4Test.java.
+
+  $ java -jar munit.jar tests/Hw4Test.class hw4.asm
+
+  $ javac -cp munit.jar tests/Hw4Test.java (compile if necessary)
+
+Points breakdown (total = 100 pts.):
+
+1. Create Network (20 pts.)
+
+verify_create_network tests: 3 tests; 20/3 pts. each test.
+
+2. Add Person (20 pts.)
+
+8 tests; 20/8 pts. each test.
+
+verify_add_person_succ_1
+verify_add_person_length_succ
+verify_add_person_network_succ
+verify_add_empty_person_fail
+verify_add_two_persons_succ
+verify_add_same_persons_fail
+verify_add_two_persons_network_succ
+verify_add_max_fail
+
+3. Get Person (20 pts.)
+
+verify_get_existing_person (10 pts. )
+verify_get_absent_person ( 10 pts. )
+
+4. Add Relation (20 pts.)
+
+verify_add_relation tests: 8 tests; 20/8 pts. each test.
+
+5. Distant Friends (20 pts.)
+
+verify_get_distant_friends tests: 5 tests; Each test 4 pts.
+
+For each test case, if the only reason for failure is register convention violation then 50% credit for that test.
